@@ -97,10 +97,7 @@ public class ImageController {
     public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Image image = imageService.getImage(imageId);
         User loggedUser = (User) session.getAttribute("loggeduser");
-        boolean isEntitled=false;
-        if(image.getUser().getId()==loggedUser.getId()){
-            isEntitled=true;
-        }
+        boolean isEntitled=image.getUser().getId()==loggedUser.getId()?true:false;
         if(!isEntitled){
             String error = "Only the owner of the image can edit the image";
             redirectAttributes.addFlashAttribute("editError", error);
@@ -154,10 +151,7 @@ public class ImageController {
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         Image image = imageService.getImage(imageId);
         User loggedUser = (User) session.getAttribute("loggeduser");
-        boolean isEntitled=false;
-        if(image.getUser().getId()==loggedUser.getId()){
-            isEntitled=true;
-        }
+        boolean isEntitled=image.getUser().getId()==loggedUser.getId()?true:false;
         if(!isEntitled){
             String error = "Only the owner of the image can delete the image";
             redirectAttributes.addFlashAttribute("deleteError", error);
