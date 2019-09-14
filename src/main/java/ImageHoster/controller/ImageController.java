@@ -1,14 +1,19 @@
 package ImageHoster.controller;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
+import ImageHoster.service.CommentService;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,6 +29,11 @@ public class ImageController {
 
     @Autowired
     private TagService tagService;
+
+
+    @Autowired
+    private CommentService commentsService;
+
 
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
@@ -47,8 +57,10 @@ public class ImageController {
     public String showImage(@PathVariable("id") Integer id, @PathVariable("title") String title, Model model, HttpSession session) {
         //Image image = imageService.getImageByTitle(title);
         Image image = imageService.getImage(id);
+        List<Comment> comments = commentsService.getAllComments(image.getId(), image.getTitle());
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments", comments);
         //Debug lines added to check if added attributes are visible
 //        System.out.println("editError: "+ model.containsAttribute("editError"));
 //        System.out.println("deleteError: " +model.containsAttribute("deleteError"));
@@ -97,7 +109,7 @@ public class ImageController {
     public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Image image = imageService.getImage(imageId);
         User loggedUser = (User) session.getAttribute("loggeduser");
-        boolean isEntitled=image.getUser().getId()==loggedUser.getId()?true:false;
+        boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can edit the image";
             redirectAttributes.addFlashAttribute("editError", error);
@@ -151,7 +163,7 @@ public class ImageController {
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         Image image = imageService.getImage(imageId);
         User loggedUser = (User) session.getAttribute("loggeduser");
-        boolean isEntitled=image.getUser().getId()==loggedUser.getId()?true:false;
+        boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can delete the image";
             redirectAttributes.addFlashAttribute("deleteError", error);
