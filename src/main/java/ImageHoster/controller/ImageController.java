@@ -112,13 +112,14 @@ public class ImageController {
         boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can edit the image";
-            redirectAttributes.addFlashAttribute("editError", error);
+            redirectAttributes.addAttribute("editError", error);
             return "redirect:/images/"+image.getId()+"/"+image.getTitle();
         }
         String tags = convertTagsToString(image.getTags());
         model.addAttribute("image", image);
         model.addAttribute("tags", tags);
         return "images/edit";
+        //return new ModelAndView("images/edit");
     }
 
     //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
@@ -166,7 +167,7 @@ public class ImageController {
         boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can delete the image";
-            redirectAttributes.addFlashAttribute("deleteError", error);
+            redirectAttributes.addAttribute("deleteError", error);
             return "redirect:/images/"+image.getId()+"/"+image.getTitle();
         }
         imageService.deleteImage(imageId);

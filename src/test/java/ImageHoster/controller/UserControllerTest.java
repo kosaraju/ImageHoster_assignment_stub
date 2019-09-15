@@ -62,7 +62,7 @@ public class UserControllerTest {
 
 
         this.mockMvc.perform(post("/users/registration")
-                .flashAttr("user", user)
+                .flashAttr("User", user)
         )
                 .andExpect(model().attribute("passwordTypeError", equalTo("Password must contain atleast 1 alphabet, 1 number & 1 special character")));
     }
