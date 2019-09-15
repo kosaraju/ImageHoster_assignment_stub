@@ -55,15 +55,12 @@ public class ImageController {
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{id}/{title}")
     public String showImage(@PathVariable("id") Integer id, @PathVariable("title") String title, Model model, HttpSession session) {
-        //Image image = imageService.getImageByTitle(title);
+        //Get image by Id to ensure there is always maximum single result
         Image image = imageService.getImage(id);
         List<Comment> comments = commentsService.getAllComments(image.getId(), image.getTitle());
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
         model.addAttribute("comments", comments);
-        //Debug lines added to check if added attributes are visible
-//        System.out.println("editError: "+ model.containsAttribute("editError"));
-//        System.out.println("deleteError: " +model.containsAttribute("deleteError"));
         return "images/image";
     }
 
@@ -112,14 +109,17 @@ public class ImageController {
         boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can edit the image";
+            //addAttribute essentially constructs request parameters out of your attributes and redirects to the desired page with the request parameters
             redirectAttributes.addAttribute("editError", error);
+            //addFlashAttribute() actually stores the attributes in a flashmap
+            // (which is internally maintained in the users session and removed once the next redirected request gets fulfilled)
+            redirectAttributes.addFlashAttribute("editError", error);
             return "redirect:/images/"+image.getId()+"/"+image.getTitle();
         }
         String tags = convertTagsToString(image.getTags());
         model.addAttribute("image", image);
         model.addAttribute("tags", tags);
         return "images/edit";
-        //return new ModelAndView("images/edit");
     }
 
     //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
@@ -167,7 +167,12 @@ public class ImageController {
         boolean isEntitled = image.getUser().getId() == loggedUser.getId();
         if(!isEntitled){
             String error = "Only the owner of the image can delete the image";
+            //addAttribute essentially constructs request parameters out of your attributes and redirects to the desired page with the request parameters
             redirectAttributes.addAttribute("deleteError", error);
+            //addFlashAttribute() actually stores the attributes in a flashmap
+            // (which is internally maintained in the users session and removed once the next redirected request gets fulfilled)
+            redirectAttributes.addFlashAttribute("deleteError", error);
+
             return "redirect:/images/"+image.getId()+"/"+image.getTitle();
         }
         imageService.deleteImage(imageId);
